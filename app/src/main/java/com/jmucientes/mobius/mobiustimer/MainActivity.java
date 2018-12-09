@@ -4,10 +4,18 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.jmucientes.mobius.mobiustimer.domain.Effect;
 import com.jmucientes.mobius.mobiustimer.domain.Event;
 import com.jmucientes.mobius.mobiustimer.domain.TimerLogic;
+import com.jmucientes.mobius.mobiustimer.effecthandlers.TimerEffectHandler;
+import com.spotify.mobius.Mobius;
 import com.spotify.mobius.MobiusLoop;
+import com.spotify.mobius.Next;
+import com.spotify.mobius.Update;
 import com.spotify.mobius.extras.MobiusExtras;
+import com.spotify.mobius.functions.Consumer;
+
+import javax.annotation.Nonnull;
 
 import static com.jmucientes.mobius.mobiustimer.domain.Event.DOWN;
 import static com.jmucientes.mobius.mobiustimer.domain.Event.UP;
@@ -20,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        createBeginnerLoop();
+        createMobiusLoop();
         setContentView(R.layout.activity_main);
 
     }
@@ -42,9 +50,10 @@ public class MainActivity extends AppCompatActivity {
         mLoop.dispose();
     }
 
-    private void createBeginnerLoop() {
-        // Create a beginners loop which supports no side effects.
-        mLoop = MobiusExtras.beginnerLoop(TimerLogic::update).startFrom(2);
+    private void createMobiusLoop() {
+        MobiusLoop<Integer, Event, Effect> loop =
+                Mobius.loop((model, event) -> TimerLogic.update(model, event), TimerEffectHandler::effectHandler).startFrom(2);
+
         // This observer will be triggered when the model (an int number) changes
         mLoop.observe(value -> Log.d(TAG, "Counter: " + value));
 
