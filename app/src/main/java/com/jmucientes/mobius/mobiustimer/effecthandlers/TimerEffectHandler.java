@@ -1,5 +1,6 @@
 package com.jmucientes.mobius.mobiustimer.effecthandlers;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.jmucientes.mobius.mobiustimer.domain.Effect;
@@ -15,10 +16,10 @@ public class TimerEffectHandler {
 
         return new Connection<Effect>() {
             @Override
-            public void accept(Effect effect) {
-                if (effect == Effect.REPORT_ERROR_NEGATIVE) {
+            public void accept(@NonNull Effect effect) {
+                effect.match(reportErrorNegative -> {
                     Log.e(TAG, "Tried to subtract 1, but counter was 0.");
-                }
+                });
             }
 
             @Override

@@ -1,9 +1,14 @@
 package com.jmucientes.mobius.mobiustimer.domain;
 
-import com.spotify.mobius.Effects;
+import android.support.annotation.NonNull;
+
+import com.spotify.mobius.First;
 import com.spotify.mobius.Next;
 
+import javax.annotation.Nonnull;
+
 import static com.spotify.mobius.Effects.effects;
+import static com.spotify.mobius.First.first;
 import static com.spotify.mobius.Next.*;
 
 public class TimerLogic {
@@ -20,17 +25,18 @@ public class TimerLogic {
      * The update function only declares what is supposed to occur, but it doesn't make it occur.
      * Details : https://github.com/spotify/mobius/wiki/Creating-a-loop
      */
-    public static Next<Integer, Effect> update(int model, Event event) {
-        switch (event) {
-            case UP:
-                return next(model + 1);
+    @NonNull
+    public static Next<TimerModel, Effect> update(TimerModel model, Event event) {
+        return event.map(
+                up -> next(model.increase()),
 
-            case DOWN:
-                if (model > 0) {
-                    return next(model - 1);
+                down -> {
+                    if (model.counter() > 0) {
+                        return next(model.decrease());
+                    }
+                    return dispatch(effects(Effect.reportErrorNegative()));
                 }
-        }
-        // No need to update the model, just dispatch effect
-        return dispatch(effects(Effect.REPORT_ERROR_NEGATIVE));
+        );
     }
+
 }
